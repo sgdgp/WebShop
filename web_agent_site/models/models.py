@@ -10,7 +10,7 @@ random.seed(4)
 class BasePolicy:
     def __init__(self):
         pass
-    
+
     def forward(observation, available_actions):
         """
         Args:
@@ -20,7 +20,7 @@ class BasePolicy:
             available_actions ():
                 ...
         Returns:
-            action (`str`): 
+            action (`str`):
                 Return string of the format ``action_name[action_arg]''.
                 Examples:
                     - search[white shoes]
@@ -35,18 +35,18 @@ class HumanPolicy(BasePolicy):
         super().__init__()
 
     def forward(self, observation, available_actions):
-        action = input('> ')
+        action = input("> ")
         return action
 
 
 class RandomPolicy(BasePolicy):
     def __init__(self):
         super().__init__()
-    
+
     def forward(self, observation, available_actions):
-        if available_actions['has_search_bar']:
-            action = 'search[shoes]'
+        if available_actions["has_search_bar"]:
+            action = "search[shoes]"
         else:
-            action_arg = random.choice(available_actions['clickables'])
-            action = f'click[{action_arg}]'
+            action_arg = random.choice(available_actions["clickables"])
+            action = f"click[{action_arg}]"
         return action

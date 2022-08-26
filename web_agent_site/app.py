@@ -42,9 +42,11 @@ user_sessions = dict()
 user_log_dir = None
 SHOW_ATTRS_TAB = False
 
+
 @app.route('/')
 def home():
     return redirect(url_for('index', session_id="abc"))
+
 
 @app.route('/<session_id>', methods=['GET', 'POST'])
 def index(session_id):

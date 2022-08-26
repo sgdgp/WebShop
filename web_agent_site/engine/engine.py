@@ -222,12 +222,10 @@ def clean_product_keys(products):
 
 def load_products(filepath, num_products=None, human_goals=True):
     all_products = []
-    attribute_to_asins = defaultdict(set)
-
     if os.path.exists(DEFAULT_ALL_PRODS_PATH):
         with open(DEFAULT_ALL_PRODS_PATH) as f:
             all_products = json.load(f)
-            print("All products loaded")
+            print("All products loaded.")
     else:
         # TODO: move to preprocessing step -> enforce single source of truth
         with open(filepath) as f:
@@ -235,6 +233,7 @@ def load_products(filepath, num_products=None, human_goals=True):
         print('Products loaded.')
         products = clean_product_keys(products)
         
+        # Load reviews (This takes a long time)
         all_reviews = dict()
         all_ratings = dict()
         with open(DEFAULT_REVIEW_PATH) as f:
@@ -242,6 +241,7 @@ def load_products(filepath, num_products=None, human_goals=True):
             for r in reviews:
                 all_reviews[r['asin']] = r['reviews']
                 all_ratings[r['asin']] = r['average_rating']
+        print('Reviews loaded.')
 
         if human_goals:
             with open(HUMAN_ATTR_PATH) as f:
@@ -342,6 +342,7 @@ def load_products(filepath, num_products=None, human_goals=True):
 
             all_products.append(products[i])
 
+    attribute_to_asins = defaultdict(set)
     for p in all_products:
         for a in p['Attributes']:
             attribute_to_asins[a].add(p['asin'])

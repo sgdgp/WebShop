@@ -1,6 +1,11 @@
-import pytest
 from math import isclose
-from web_agent_site.engine.goal import *
+from web_agent_site.engine.goal import (
+    get_attribute_reward,
+    get_option_reward,
+    get_reward,
+    get_type_reward,
+)
+
 
 def test_get_type_reward():
     # Exact Match
@@ -16,35 +21,35 @@ def test_get_type_reward():
     }
     result = get_type_reward(purchased, goal)
     assert result['r_type'] == 1.
-    assert result['query_match'] == True
-    assert result['category_match'] == True
+    assert result['query_match'] is True
+    assert result['category_match'] is True
     assert result['title_score'] == 1
 
     # Query Mismatch
     purchased['query'] = 'Query 2'
     result = get_type_reward(purchased, goal)
-    assert result['query_match'] == False
+    assert result['query_match'] is False
 
     # Out of order / non-matching / partially matching / duplicate categories
     purchased['product_category'] = "b › c › a"
     result = get_type_reward(purchased, goal)
-    assert result['category_match'] == True
+    assert result['category_match'] is True
 
     purchased['product_category'] = "d › e › f"
     result = get_type_reward(purchased, goal)
-    assert result['category_match'] == False
+    assert result['category_match'] is False
 
     purchased['product_category'] = "a › d › b"
     result = get_type_reward(purchased, goal)
-    assert result['category_match'] == True
+    assert result['category_match'] is True
 
     purchased['product_category'] = "a › a › b"
     result = get_type_reward(purchased, goal)
-    assert result['category_match'] == True
+    assert result['category_match'] is True
 
     purchased['product_category'] = "a › a › d"
     result = get_type_reward(purchased, goal)
-    assert result['category_match'] == False
+    assert result['category_match'] is False
 
     # Similar product names
     goal['name'] = "adidas Unisex-Adult D.o.n. Issue 2 Basketball Shoe"
@@ -69,6 +74,7 @@ def test_get_type_reward():
     result = get_type_reward(purchased, goal)
     assert result['title_score'] < 0.05
 
+
 def test_get_attribute_reward():
     # Exact Match
     goal = {
@@ -92,7 +98,7 @@ def test_get_attribute_reward():
         'Description': ""
     }
     r_attr, num_attr_matches = get_attribute_reward(purchased, goal)
-    assert r_attr == 2./3.
+    assert r_attr == 2. / 3.
     assert num_attr_matches == 2
 
     # Goal attributes found in purchased non-goals
@@ -106,7 +112,7 @@ def test_get_attribute_reward():
         'Description': "Best shampoo on the market, made with natural ingredients"
     }
     r_attr, num_attr_matches = get_attribute_reward(purchased, goal)
-    assert r_attr == 2./3.
+    assert r_attr == 2. / 3.
     assert num_attr_matches == 2
 
     # No match
@@ -122,6 +128,7 @@ def test_get_attribute_reward():
     r_attr, num_attr_matches = get_attribute_reward(purchased, goal)
     assert r_attr == 0
     assert num_attr_matches == 0
+
 
 def test_get_option_reward():
     purchased = {
@@ -142,7 +149,7 @@ def test_get_option_reward():
     p_opts = {"count": "pack of 12", "color": "blue", "size": "XL"}
     r_option, matches = get_option_reward(purchased, g_opts, p_opts)
     assert matches == len(g_opts) - 1
-    assert r_option == 2./3.
+    assert r_option == 2. / 3.
 
     # Fuzzy Match
     g_opts = ["cool powder snow", "XL", "pack of 12"]
@@ -161,7 +168,7 @@ def test_get_option_reward():
     g_opts, p_opts = [], {"count": "g1", "color": "g2"}
     r_option, matches = get_option_reward(purchased, g_opts, p_opts)
     assert matches == 0
-    assert r_option == None
+    assert r_option is None
 
     # Empty Purchased Options
     g_opts, p_opts = ["g1", "g2"], {}
@@ -186,6 +193,7 @@ def test_get_option_reward():
     r_option, matches = get_option_reward(purchased, ["powder blue"], {})
     assert matches == 1
     assert r_option == 1
+
 
 def test_get_reward():
     # Exact Match
@@ -216,7 +224,7 @@ def test_get_reward():
     purchased['BulletPoints'] = "This shampoo has essential oils and smells like lemons"
     purchased['Description'] = "Best shampoo on the market, made with natural ingredients"
     total_reward = get_reward(purchased, goal, 35, purchased['goal_options'])
-    assert isclose(total_reward, 2./3., abs_tol=1e-2)
+    assert isclose(total_reward, 2. / 3., abs_tol=1e-2)
 
     # Variation in r_option reward
     goal['goal_options'] = {"color": "grey", "size": "XL", "amount": "pack of 12"}

@@ -3,10 +3,11 @@ beautifulsoup4==4.11.1
 cleantext==1.1.4
 datasets==2.4.0
 env==0.1.0
+flake8
 Flask==2.2.1
 gdown
 gradio
-gym==0.25.1
+gym==0.24.0
 numpy==1.22.1
 pandas==1.4.3
 pyserini==0.17.0

@@ -1,9 +1,13 @@
 import logging
-import pytest
 import random
 import shutil
 from pathlib import Path
-from web_agent_site.utils import *
+from web_agent_site.utils import (
+    generate_mturk_code,
+    random_idx,
+    setup_logger
+)
+
 
 def test_random_idx():
     random.seed(24)
@@ -17,6 +21,7 @@ def test_random_idx():
     assert idx_1 == expected_1
     assert idx_2 == expected_2
     assert idx_3 == expected_3
+
 
 def test_setup_logger():
     LOG_DIR = 'user_session_logs_test/'
@@ -34,6 +39,7 @@ def test_setup_logger():
     assert log_file.read_text().strip("\n") == content
 
     shutil.rmtree(LOG_DIR)
+
 
 def test_generate_mturk_code():
     suite = [

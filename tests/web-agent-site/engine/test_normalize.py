@@ -1,5 +1,8 @@
-import pytest
-from web_agent_site.engine.normalize import *
+from web_agent_site.engine.normalize import (
+    normalize_color,
+    normalize_color_size
+)
+
 
 def test_normalize_color():
     suite = [
@@ -14,6 +17,7 @@ def test_normalize_color():
         output = normalize_color(color_string)
         assert type(output) is str
         assert output == expected
+
 
 def test_normalize_color_size():
     product_prices = {
@@ -48,6 +52,6 @@ def test_normalize_color_size():
 
     color_mapping, size_mapping = normalize_color_size(product_prices)
     assert type(color_mapping) == dict
-    assert type(size_mapping)  == dict
+    assert type(size_mapping) == dict
     assert color_mapping == color_mapping_expected
-    assert size_mapping  == size_mapping_expected
+    assert size_mapping == size_mapping_expected

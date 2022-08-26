@@ -1,10 +1,10 @@
+from web_agent_site.utils import DEFAULT_FILE_PATH
+from web_agent_site.engine.engine import load_products
+
 import sys
 import json
 from tqdm import tqdm
 sys.path.insert(0, '../')
-
-from web_agent_site.utils import DEFAULT_FILE_PATH
-from web_agent_site.engine.engine import load_products
 
 all_products, *_ = load_products(filepath=DEFAULT_FILE_PATH)
 
