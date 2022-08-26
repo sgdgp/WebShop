@@ -51,7 +51,7 @@ def process_str(s):
 def process_goal(state):
     state = state.lower().replace('"', "").replace("'", "")
     state = (
-        state.replace("amazon shopping game\ninstruction:", "")
+        state.replace("webshop\ninstruction:", "")
         .replace("\n[button] search [button_]", "")
         .strip()
     )
