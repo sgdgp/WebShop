@@ -49,14 +49,11 @@ def process_str(s):
 
 
 def process_goal(state):
-    state = state.lower().replace('"', "").replace("'", "")
-    state = (
-        state.replace("webshop\ninstruction:", "")
-        .replace("\n[button] search [button_]", "")
-        .strip()
-    )
-    if ", and price lower than" in state:
-        state = state.split(", and price lower than")[0]
+    state = state.lower().replace('"', '').replace("'", "")
+    state = state.replace('amazon shopping game\ninstruction:', '').replace('webshop\ninstruction:', '')
+    state = state.replace('\n[button] search [button_]', '').strip()
+    if ', and price lower than' in state:
+        state = state.split(', and price lower than')[0]
     return state
 
 
