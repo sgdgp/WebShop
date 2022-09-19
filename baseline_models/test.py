@@ -84,6 +84,15 @@ def episode(model, idx=None, verbose=False, softmax=False, rule=False, bart_mode
 
 
 def parse_args():
+    '''
+    Interactions to try out:
+    1. go to correct item page
+    2. whether to reformulate search
+    3. whether this is correct item (at any item page)
+    4. whether this is correct item (only before buy)
+    '''
+
+
     parser = argparse.ArgumentParser(description="Finetune a transformers model on a text classification task")
     parser.add_argument("--model_path", type=str, default="./ckpts/web_click/epoch_9/model.pth", help="Where to store the final model.")
     parser.add_argument("--mem", type=int, default=0, help="State with memory")
@@ -91,6 +100,16 @@ def parse_args():
     parser.add_argument("--bart", type=int, default=1, help="use bart or not")
     parser.add_argument("--image", type=int, default=1, help="use image or not")
     parser.add_argument("--softmax", type=int, default=1, help="softmax sampling")
+
+    parser.add_argument("--results_dir", type=str, default="abc")
+    parser.add_argument("--start_id", type=int, default=0)
+    parser.add_argument("--end_id", type=int, default=99)
+    
+    parser.add_argument("--rule", type=int, default=0)
+    parser.add_argument("--interactive_agent", type=int, default=0)
+    parser.add_argument("--allowed_interactions_list", nargs="+", default=["reformulate_search", "find_item_page", "assert_correct_item_any", "assert_correct_item_before_buy"])
+
+
 
     args = parser.parse_args()
 
@@ -111,6 +130,12 @@ if __name__ == "__main__":
         env.env.num_prev_actions = 0
         print('no memory')
     
+    if args.rule:
+        print("Rule based agent")
+    if args.interactive_agent:
+        print("Interactive agent")
+        print("Allowed interactions : ", args.allowed_interactions_list)
+    
 
     if args.bart:
         bart_model = BartForConditionalGeneration.from_pretrained(args.bart_path)
@@ -127,15 +152,31 @@ if __name__ == "__main__":
 
     print('idx | reward (model), reward (rule)')
     scores_softmax, scores_rule = [], []
-    for i in range(500):
-        score_softmax, score_rule = episode(model, idx=i, softmax=args.softmax, bart_model=bart_model), episode(model, idx=i, rule=True)
-        print(i, '|', score_softmax * 10, score_rule * 10)  # env score is 0-10, paper is 0-100
+
+    score_tuple = []
+    score_tuple_file = os.path.join(args.results_dir, f"score_tuple_{args.start_id}_{args.end_id}.json") 
+    for i in range(args.start_id, args.end_id + 1):
+        if args.rule:
+            score_softmax = episode(model, idx=i, rule=True)
+        else:
+            score_softmax = episode(model, idx=i, softmax=args.softmax, bart_model=bart_model)
+        
+        # , episode(model, idx=i, rule=True)
+        # print(i, '|', score_softmax * 10, score_rule * 10)  # env score is 0-10, paper is 0-100
+        
+        print(i, '|', score_softmax * 10)  # env score is 0-10, paper is 0-100
+        # score_tuple.append([i, score_softmax * 10, score_rule * 10])
+        score_tuple.append([i, score_softmax * 10])
         scores_softmax.append(score_softmax)
-        scores_rule.append(score_rule)
+        # scores_rule.append(score_rule)
+    
+    json.dump(score_tuple, open(score_tuple_file, "w"))
+    
     score_softmax = sum(scores_softmax) / len(scores_softmax)
-    score_rule = sum(scores_rule) / len(scores_rule)
+    # score_rule = sum(scores_rule) / len(scores_rule)
     harsh_softmax = len([s for s in scores_softmax if s == 10.0])
-    harsh_rule = len([s for s in scores_rule if s == 10.0])
+    # harsh_rule = len([s for s in scores_rule if s == 10.0])
+    
     print('------')
-    print('avg test score (model, rule):', score_softmax * 10, score_rule * 10)
-    print('avg test success rate % (model, rule):', harsh_softmax / 500 * 100, harsh_rule / 500 * 100)
+    print('avg test score :', score_softmax * 10)
+    print('avg test success rate % :', harsh_softmax / 500 * 100)
